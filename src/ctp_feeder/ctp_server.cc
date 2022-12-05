@@ -24,7 +24,7 @@ namespace co {
         tApi->SubscribePublicTopic(THOST_TERT_RESTART);
         tApi->SubscribePrivateTopic(THOST_TERT_RESUME);
         tApi->Init();
-        tSpi->Wait(); // �ȴ���ѯ����
+        tSpi->Wait();
         tApi->RegisterSpi(nullptr);
         tApi->Release();
         tApi = nullptr;

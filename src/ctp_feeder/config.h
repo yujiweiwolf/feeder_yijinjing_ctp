@@ -36,6 +36,21 @@ namespace co {
         inline string ctp_auth_code() {
             return ctp_auth_code_;
         }
+        inline string journal_dir() {
+            return journal_dir_;
+        }
+        inline string journal_file() {
+            return journal_file_;
+        }
+        inline string sub_instrument() {
+            return sub_instrument_;
+        }
+        inline bool enable_future() {
+            return enable_future_;
+        }
+        inline bool enable_option() {
+            return enable_option_;
+        }
 
     protected:
         Config() = default;
@@ -57,6 +72,11 @@ namespace co {
         string ctp_product_info_;
         string ctp_auth_code_;
         string sub_code_prefix_;
-    };
 
+        string journal_dir_;
+        string journal_file_;
+        string sub_instrument_;
+        bool enable_future_ = false;
+        bool enable_option_ = false;
+    };
 }

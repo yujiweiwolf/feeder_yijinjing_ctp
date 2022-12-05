@@ -1,4 +1,5 @@
 #include <regex>
+#include <boost/algorithm/string.hpp>
 #include "ctp_market_spi.h"
 #include "instrument_field.h"
 
@@ -6,7 +7,6 @@ namespace co {
 
     CTPMarketSpi::CTPMarketSpi(CThostFtdcMdApi* qApi) {
         api_ = qApi;
-        feeder_writer_ = yijinjing::JournalWriter::create("./data", "ctp_feeder", "Client");
     }
 
     CTPMarketSpi::~CTPMarketSpi() {
@@ -14,6 +14,9 @@ namespace co {
     }
 
     void CTPMarketSpi::Init() {
+        string journal_dir = Config::Instance()->journal_dir();
+        string journal_file = Config::Instance()->journal_file() + "_" + std::to_string(x::RawDate());
+        feeder_writer_ = yijinjing::JournalWriter::create(journal_dir.c_str(), journal_file.c_str(), "Client");
         vector<CThostFtdcInstrumentField> all_instrument = Singleton<InstrumentMgr>::GetInstance()->GetInstrument();
         for (auto it : all_instrument) {
             string ctp_code = it.InstrumentID;
@@ -188,11 +191,7 @@ namespace co {
             return;
         }
 
-//        string s = p->UpdateTime; // 15:00:01
-//        boost::algorithm::replace_all(s, ":", "");
-//        int64_t stamp = atoll(s.c_str()) * 1000LL + p->UpdateMillisec;
         int64_t stamp = GetUpdateTime(p->UpdateTime)* 1000LL + p->UpdateMillisec;
-
         bool first_flag = false;
         auto it = all_ticks_.find(ctp_code);
         if (it != all_ticks_.end()) {
@@ -384,29 +383,48 @@ namespace co {
 
     void CTPMarketSpi::ReqSubMarketData() {
         __info << "sub quotation ...";
-        bool enable_future = true;
-        bool enable_option = false;
+        string sub_instrument = Config::Instance()->sub_instrument();
+        vector<string> vec_info;
+        boost::split(vec_info, sub_instrument, boost::is_any_of(";"), boost::token_compress_on);
+        bool enable_future = Config::Instance()->enable_future();
+        bool enable_option = Config::Instance()->enable_option();
         sub_status_.clear();
         vector<string> sub_codes;
         for (auto& it : all_ticks_) {
+            bool need_flag = false;
             if (enable_future && it.second.dtype == kDTypeFuture) {
-                sub_status_[it.first] = false;
-                sub_codes.push_back(it.first);
+                if (sub_instrument.empty()) {
+                    need_flag = true;
+                } else {
+                    string product = get_product(it.first);
+                    for (auto& itor : vec_info) {
+                        if (itor == product) {
+                            need_flag = true;
+                            __info << "need, " << it.first << ", type:" << (int)it.second.dtype << ", product:" << product;
+                            break;
+                        }
+                    }
+                }
+            } else if (enable_option && it.second.dtype == kDTypeOption) {
+                if (sub_instrument.empty()) {
+                    need_flag = true;
+                } else {
+                    string product = get_product(it.first);
+                    for (auto& itor : vec_info) {
+                        if (itor == product) {
+                            need_flag = true;
+                            __info << "need option, " << it.first << ", type:" << (int)it.second.dtype << ", product:" << product;
+                            break;
+                        }
+                    }
+                }
             }
 
-            if (enable_option && it.second.dtype == kDTypeOption) {
+            if (need_flag) {
                 sub_status_[it.first] = false;
                 sub_codes.push_back(it.first);
             }
         }
-
-//        std::vector<CThostFtdcInstrumentField> all_instrument = Singleton<InstrumentMgr>::GetInstance()->GetInstrument();
-//        for (auto it : all_instrument) {
-//            if (it.ProductClass == THOST_FTDC_PC_Futures) {
-//                sub_status_[it.InstrumentID] = false;
-//                sub_codes.push_back(it.InstrumentID);
-//            }
-//        }
 
         size_t limit = 100;
         for (size_t i = 0; i < sub_codes.size(); ) {

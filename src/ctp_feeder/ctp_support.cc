@@ -66,5 +66,17 @@ namespace co {
         }
         return suffix;
     }
+
+    string get_product(const string& code) {
+        string product;
+        for (auto& it : code) {
+            if (it >= '0' && it <= '9') {
+                break;
+            } else {
+                product.push_back(it);
+            }
+        }
+        return product;
+    }
 }
 
