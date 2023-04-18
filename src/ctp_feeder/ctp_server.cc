@@ -55,6 +55,4 @@ namespace co {
             qSpi_ = nullptr;
         }
     }
-
 }
-

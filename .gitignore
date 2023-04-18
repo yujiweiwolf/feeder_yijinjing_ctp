@@ -5,7 +5,6 @@
 !*.h
 !*.c
 !*.cc
-!*.go
 !*.sln
 !*.vcxproj
 !*.vcxproj.filters
@@ -17,7 +16,6 @@
 !*.xlsx
 !*.docx
 !*.sh
-!*.csv
 
 !Makefile*
 !Dockerfile*
@@ -26,5 +24,5 @@
 !lib/**/*.dll
 !lib/**/*.lib
 !lib/**/*.so
-
-cmake-build-debug/
+!lib/**/*.xml
+!lib/**/*.dtd

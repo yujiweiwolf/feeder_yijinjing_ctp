@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{DA519935-BAEA-4174-BFB1-C3906FFF1C81}</ProjectGuid>
+    <RootNamespace>feederinsight</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\..\vclibs\boost-1.70.0\include;..\..\..\vclibs\libiconv-1.15\include;..\..\..\vclibs\libopenssl-1.1.0\include;..\..\..\vclibs\libsodium-1.0.17\include;..\..\..\vclibs\libzmq-4.3.1\include;..\..\..\vclibs\librapidjson-1.1.0\include;..\..\..\vclibs\libflatbuffers-1.12.0\include;..\..\..\vclibs\libprotobuf-3.8.0\include;..\..\..\vclibs\libsnappy-1.1.7\include;..\..\..\vclibs\libx-1.1.0\include;..\..\..\vclibs\libcoral-1.1.0\include;..\..\lib\libctp-6.3.15\include;..\..\..\my_yijinjing\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>
+      </LanguageStandard>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>..\..\..\vclibs\libyaml-cpp-0.6.3\lib;..\..\..\vclibs\boost-1.70.0\lib;..\..\..\vclibs\libiconv-1.15\lib;..\..\..\vclibs\libopenssl-1.1.0\lib;..\..\..\vclibs\libsodium-1.0.17\lib;..\..\..\vclibs\libzmq-4.3.1\lib;..\..\..\vclibs\librapidjson-1.1.0\lib;..\..\..\vclibs\libprotobuf-3.8.0\lib;..\..\..\vclibs\libflatbuffers-1.12.0\lib;..\..\..\vclibs\libx-1.1.0\lib;..\..\..\vclibs\libcoral-1.1.0\lib;..\..\..\vclibs\libswordfish-1.1.0\lib;..\..\lib\libctp-6.3.15\lib;..\..\..\my_yijinjing\vs2019\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libyijijing-vc142-mt-d-x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\..\vclibs\boost-1.70.0\include;..\..\..\vclibs\libiconv-1.15\include;..\..\..\vclibs\libopenssl-1.1.0\include;..\..\..\vclibs\libsodium-1.0.17\include;..\..\..\vclibs\libzmq-4.3.1\include;..\..\..\vclibs\librapidjson-1.1.0\include;..\..\..\vclibs\libflatbuffers-1.10.0\include;..\..\..\vclibs\libsnappy-1.1.7\include;..\..\..\vclibs\libx-1.0\include;..\..\..\vclibs\libcoral-1.0\include;..\..\..\vclibs\libfeeder-1.0\include111;..\..\lib\libinsight-1.0\include;..\..\lib\libinsight-1.0\protobuf;..\..\lib\protobuf-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\..\vclibs\boost-1.70.0\lib;..\..\..\vclibs\libiconv-1.15\lib;..\..\..\vclibs\libopenssl-1.1.0\lib;..\..\..\vclibs\libsodium-1.0.17\lib;..\..\..\vclibs\libzmq-4.3.1\lib;..\..\..\vclibs\librapidjson-1.1.0\lib\;..\..\..\vclibs\libprotobuf-3.8.0\lib111;..\..\..\vclibs\libflatbuffers-1.10.0\lib;..\..\..\vclibs\libx-1.0\lib\;..\..\..\vclibs\libcoral-1.0\lib111\;..\..\..\vclibs\libswordfish-1.0\lib1111\;..\..\..\vclibs\libfeeder-1.0\lib111\;..\..\lib\libinsight-1.0\lib\x64Release;..\..\lib\protobuf-3.1.0\lib\x64Release;..\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\.gitignore" />
+    <None Include="..\..\ChangeLog.md" />
+    <None Include="..\..\conf\config.ini" />
+    <None Include="..\..\Dockerfile" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\ctp_feeder\config.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\ctp.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\ctp_market_spi.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\ctp_server.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\ctp_support.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\ctp_trade_spi.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\define.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\instrument_field.h" />
+    <ClInclude Include="..\..\src\ctp_feeder\singleton.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ctp_feeder\config.cc" />
+    <ClCompile Include="..\..\src\ctp_feeder\ctp_market_spi.cc" />
+    <ClCompile Include="..\..\src\ctp_feeder\ctp_server.cc" />
+    <ClCompile Include="..\..\src\ctp_feeder\ctp_support.cc" />
+    <ClCompile Include="..\..\src\ctp_feeder\ctp_trade_spi.cc" />
+    <ClCompile Include="..\..\src\ctp_feeder\main.cc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

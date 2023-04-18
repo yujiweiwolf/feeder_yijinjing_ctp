@@ -3,7 +3,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "feeder/feeder.h"
+#include "x/x.h"
+#include "coral/coral.h"
 
 namespace co {
     using namespace std;
@@ -36,6 +37,7 @@ namespace co {
         inline string ctp_auth_code() {
             return ctp_auth_code_;
         }
+        /////公共部分
         inline string journal_dir() {
             return journal_dir_;
         }
@@ -44,6 +46,9 @@ namespace co {
         }
         inline string sub_instrument() {
             return sub_instrument_;
+        }
+        inline bool enable_spot() {
+            return enable_spot_;
         }
         inline bool enable_future() {
             return enable_future_;
@@ -76,6 +81,7 @@ namespace co {
         string journal_dir_;
         string journal_file_;
         string sub_instrument_;
+        bool enable_spot_ = false;
         bool enable_future_ = false;
         bool enable_option_ = false;
     };

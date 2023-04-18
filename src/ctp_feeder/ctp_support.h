@@ -25,9 +25,9 @@ namespace co {
         return v > 0 && v <= kCtpMaxPrice ? v : 0;
     }
 
-    int64_t ctp_market2std(TThostFtdcExchangeIDType v);
+    int8_t ctp_market2std(TThostFtdcExchangeIDType v);
 
-    string market_suffix(int64_t market);
+    string market_suffix(int8_t market);
 
     string get_product(const string& code);
 }

@@ -11,10 +11,18 @@ namespace co {
 
     }
 
-    ///å½“å®¢æˆ·ç«¯ä¸äº¤æ˜“åå°å»ºç«‹èµ·é€šä¿¡è¿æ¥æ—¶ï¼ˆè¿˜æœªç™»å½•å‰ï¼‰ï¼Œè¯¥æ–¹æ³•è¢«è°ƒç”¨ã€‚
+    ///µ±¿Í»§¶ËÓë½»Ò×ºóÌ¨½¨Á¢ÆğÍ¨ĞÅÁ¬½ÓÊ±£¨»¹Î´µÇÂ¼Ç°£©£¬¸Ã·½·¨±»µ÷ÓÃ¡£
     void CTPTradeSpi::OnFrontConnected() {
         __info << "connect to CTP trade server ok";
-        // åœ¨ç™»é™†ä¹‹å‰ï¼ŒæœåŠ¡ç«¯è¦æ±‚å¯¹å®¢æˆ·ç«¯è¿›è¡Œèº«ä»½è®¤è¯ï¼Œå®¢æˆ·ç«¯é€šè¿‡è®¤è¯ä¹‹åæ‰èƒ½è¯·æ±‚ç™»å½•ã€‚æœŸè´§å…¬å¸å¯ä»¥å…³é—­è¯¥åŠŸèƒ½ã€‚
+        string sub_instrument = Config::Instance()->sub_instrument();
+        if (!sub_instrument.empty()) {
+            vector<string> products;
+            x::Split(&products, sub_instrument, ";");
+            for (auto& it: products) {
+                need_product_.insert(it);
+            }
+        }
+        // ÔÚµÇÂ½Ö®Ç°£¬·şÎñ¶ËÒªÇó¶Ô¿Í»§¶Ë½øĞĞÉí·İÈÏÖ¤£¬¿Í»§¶ËÍ¨¹ıÈÏÖ¤Ö®ºó²ÅÄÜÇëÇóµÇÂ¼¡£ÆÚ»õ¹«Ë¾¿ÉÒÔ¹Ø±Õ¸Ã¹¦ÄÜ¡£
         string ctp_app_id = Config::Instance()->ctp_app_id();
         if (!ctp_app_id.empty()) {
             ReqAuthenticate();
@@ -23,13 +31,13 @@ namespace co {
         }
     };
 
-    ///å½“å®¢æˆ·ç«¯ä¸äº¤æ˜“åå°é€šä¿¡è¿æ¥æ–­å¼€æ—¶ï¼Œè¯¥æ–¹æ³•è¢«è°ƒç”¨ã€‚å½“å‘ç”Ÿè¿™ä¸ªæƒ…å†µåï¼ŒAPIä¼šè‡ªåŠ¨é‡æ–°è¿æ¥ï¼Œå®¢æˆ·ç«¯å¯ä¸åšå¤„ç†ã€‚
-    ///@param nReason é”™è¯¯åŸå› 
-    ///        0x1001 ç½‘ç»œè¯»å¤±è´¥
-    ///        0x1002 ç½‘ç»œå†™å¤±è´¥
-    ///        0x2001 æ¥æ”¶å¿ƒè·³è¶…æ—¶
-    ///        0x2002 å‘é€å¿ƒè·³å¤±è´¥
-    ///        0x2003 æ”¶åˆ°é”™è¯¯æŠ¥æ–‡
+    ///µ±¿Í»§¶ËÓë½»Ò×ºóÌ¨Í¨ĞÅÁ¬½Ó¶Ï¿ªÊ±£¬¸Ã·½·¨±»µ÷ÓÃ¡£µ±·¢ÉúÕâ¸öÇé¿öºó£¬API»á×Ô¶¯ÖØĞÂÁ¬½Ó£¬¿Í»§¶Ë¿É²»×ö´¦Àí¡£
+    ///@param nReason ´íÎóÔ­Òò
+    ///        0x1001 ÍøÂç¶ÁÊ§°Ü
+    ///        0x1002 ÍøÂçĞ´Ê§°Ü
+    ///        0x2001 ½ÓÊÕĞÄÌø³¬Ê±
+    ///        0x2002 ·¢ËÍĞÄÌøÊ§°Ü
+    ///        0x2003 ÊÕµ½´íÎó±¨ÎÄ
     void CTPTradeSpi::OnFrontDisconnected(int nReason) {
         stringstream ss;
         ss << "ret=" << nReason << ", msg=";
@@ -90,7 +98,7 @@ namespace co {
         }
     }
 
-    /// å®¢æˆ·ç«¯è®¤è¯å“åº”
+    /// ¿Í»§¶ËÈÏÖ¤ÏìÓ¦
     void CTPTradeSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
         if (pRspInfo == NULL || pRspInfo->ErrorID == 0) {
             __info << "authenticate ok";
@@ -115,7 +123,7 @@ namespace co {
         }
     }
 
-    ///ç™»å½•è¯·æ±‚å“åº”
+    ///µÇÂ¼ÇëÇóÏìÓ¦
     void CTPTradeSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
         if (pRspInfo->ErrorID == 0) {
             date_ = atoi(api_->GetTradingDay());
@@ -127,7 +135,7 @@ namespace co {
                 __error << "trading day is not today: trading_day=" << date_ << ", today=" << x::RawDate() << ", quit ...";
                 over_ = true;
             } else {
-                // å¦‚æœç«‹å³æŸ¥è¯¢åˆçº¦ï¼Œå¯èƒ½ä¼šåœ¨OnRspErrorä¸­æ”¶åˆ°æŠ¥é”™ï¼šret=90, msg=CTPï¼šæŸ¥è¯¢æœªå°±ç»ªï¼Œè¯·ç¨åé‡è¯•
+                // Èç¹ûÁ¢¼´²éÑ¯ºÏÔ¼£¬¿ÉÄÜ»áÔÚOnRspErrorÖĞÊÕµ½±¨´í£ºret=90, msg=CTP£º²éÑ¯Î´¾ÍĞ÷£¬ÇëÉÔºóÖØÊÔ
                 x::Sleep(5000);
                 ReqQryInstrument();
             }
@@ -157,7 +165,7 @@ namespace co {
         }
     }
 
-    ///è¯·æ±‚æŸ¥è¯¢åˆçº¦å“åº”
+    ///ÇëÇó²éÑ¯ºÏÔ¼ÏìÓ¦
     void CTPTradeSpi::OnRspQryInstrument(CThostFtdcInstrumentField *p, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
         if (pRspInfo == NULL || pRspInfo->ErrorID == 0) {
             Singleton<InstrumentMgr>::GetInstance()->AddInstrument(p);
@@ -185,10 +193,10 @@ namespace co {
         }
     }
 
-    ///é”™è¯¯åº”ç­”
+    ///´íÎóÓ¦´ğ
     void CTPTradeSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
         __error << "OnRspError: ret=" << pRspInfo->ErrorID << ", msg=" << ctp_str(pRspInfo->ErrorMsg);
-        if (pRspInfo->ErrorID == 90) { // <error id="NEED_RETRY" value="90" prompt="CTPï¼šæŸ¥è¯¢æœªå°±ç»ªï¼Œè¯·ç¨åé‡è¯•" />
+        if (pRspInfo->ErrorID == 90) { // <error id="NEED_RETRY" value="90" prompt="CTP£º²éÑ¯Î´¾ÍĞ÷£¬ÇëÉÔºóÖØÊÔ" />
             x::Sleep(kCtpRetrySleepMs);
             if (cur_req_type_ == "ReqUserLogin") {
                 ReqUserLogin();
@@ -207,7 +215,4 @@ namespace co {
     int CTPTradeSpi::next_id() {
         return ctp_request_id_++;
     }
-
-
 }
-

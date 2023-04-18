@@ -68,10 +68,8 @@ namespace co {
         CThostFtdcMdApi* api_ = nullptr;
 
         map<string, int> sub_status_;
-        set<string> first_flag_;
         int64_t local_date_ = 0;
         int64_t local_next_date_ = 0;
-        // int64_t login_trading_day_ = 0;
         JournalWriterPtr feeder_writer_;
         std::map<string, QTickT> all_ticks_;
     };

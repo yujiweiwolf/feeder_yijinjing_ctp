@@ -13,44 +13,54 @@ namespace co {
 
     }
 
+    string InsertCzceCode(const string ctp_code, TThostFtdcProductClassType class_type) {
+        string code = ctp_code;
+        int index = 0;
+        for (int i = 0; i < code.length(); i++) {
+            char temp = code.at(i);
+            if (temp >= '0' && temp <= '9') {
+                break;
+            } else {
+                index++;
+            }
+        }
+        code.insert(index, "2");
+        if (class_type == THOST_FTDC_PC_Combination) {
+            index += 5;
+            for (int i = index; i < code.length(); i++) {
+                char temp = code.at(i);
+                if (temp >= '0' && temp <= '9') {
+                    break;
+                } else {
+                    index++;
+                }
+            }
+            code.insert(index, "2");
+        }
+        return code;
+    }
+
     void CTPMarketSpi::Init() {
         string journal_dir = Config::Instance()->journal_dir();
         string journal_file = Config::Instance()->journal_file() + "_" + std::to_string(x::RawDate());
         feeder_writer_ = yijinjing::JournalWriter::create(journal_dir.c_str(), journal_file.c_str(), "Client");
-        vector<CThostFtdcInstrumentField> all_instrument = Singleton<InstrumentMgr>::GetInstance()->GetInstrument();
+        vector<CThostFtdcInstrumentField>& all_instrument = Singleton<InstrumentMgr>::GetInstance()->GetInstrument();
         for (auto it : all_instrument) {
             string ctp_code = it.InstrumentID;
-            int64_t market = ctp_market2std(it.ExchangeID);
+            int8_t market = ctp_market2std(it.ExchangeID);
+            if (market == 0) {
+                continue;
+            }
             string suffix = market_suffix(market);
             string std_code = ctp_code + suffix;
-            int status = it.IsTrading ? kStateOK : kStateSuspension;
-            // -------------------------------------------
-            // 修复错误代码，CTP推过来的代码可能不正确，比如SR1801，CTP推过来的代码就是：SR801。
-            // code为CTP的代码，不带后缀
-            // co_code为coral行情代码，带后缀
-            std::regex e("([a-zA-Z]+)(\\d{3})"); // SR801
-            std::smatch sm;
-            bool is_incorrect_code = std::regex_match(ctp_code, sm, e);
-            if (is_incorrect_code) {
-                string prefix = sm[1]; // SR
-                string sdate = sm[2]; // 801
-                stringstream ss;
-                ss << prefix;
-                // 如果真实合约时间>=2028年，则以下修复逻辑有误。
-                char c = sdate.at(0);
-                if (c >= '8' && c <= '9') { // 认为是18、19年，也有可能是28、29年
-                    ss << 1;
-                } else { // 认为是2020~2027年，也有可能是其他年份
-                    ss << 2;
-                }
-                ss << sdate << suffix;
-                std_code = ss.str();
+            if (market == co::kMarketCZCE) {
+                std_code = InsertCzceCode(ctp_code, it.ProductClass) + suffix;
             }
-            // -------------------------------------------
-            std::regex re_future_code("[a-zA-Z]{1,4}\\d{4}\\.[A-Z]+"); // <1~4个字母><四个数字的月份>.<市场后缀>
-            std::regex re_option_code("[a-zA-Z0-9]+-[CP]-[a-zA-Z0-9]+\\.[A-Z]+"); // IO2002-C-4200
-            bool is_future = std::regex_match(std_code, sm, re_future_code);
-            bool is_option = std::regex_match(std_code, sm, re_option_code);
+            int status = it.IsTrading ? kStateOK : kStateSuspension;
+            bool is_future = (it.ProductClass == THOST_FTDC_PC_Futures || it.ProductClass == THOST_FTDC_PC_Combination);
+            bool is_option = (it.ProductClass == THOST_FTDC_PC_Options || it.ProductClass == THOST_FTDC_PC_SpotOption);
+            bool enable_future = Config::Instance()->enable_future();
+            bool enable_option = Config::Instance()->enable_option();
 
             QTickT m;
             memset(&m, 0, sizeof(QTickT));
@@ -72,7 +82,7 @@ namespace co {
                 m.exercise_date = m.expire_date;
                 m.exercise_price = it.StrikePrice;
                 strcpy(m.underlying_code, x::Trim(it.UnderlyingInstrID).c_str());
-                m.cp_flag = (int)std_code.find("-C-") > 0 ? kCpFlagCall : kCpFlagPut;
+                m.cp_flag = it.OptionsType == THOST_FTDC_CP_CallOptions ? kCpFlagCall : kCpFlagPut;
             }
             m.new_volume = 0;
             m.new_amount = 0;
@@ -184,7 +194,7 @@ namespace co {
         if (!p) {
             return;
         }
-        string ctp_code = p->InstrumentID;
+        string ctp_code = x::Trim(p->InstrumentID);
         int64_t date = atoi(p->TradingDay);
         if (date < local_date_) {
             __warn << "ignore data with unexpected date: code = " << ctp_code << ", TradingDay = " << date << ", local_date = " << local_date_;
@@ -229,82 +239,54 @@ namespace co {
         } else {
             timestamp = local_date_ * 1000000000LL + stamp;
         }
-        void* buffer = feeder_writer_->GetFrame();
-        int64_t nano = getNanoTime();
-        Frame frame(buffer);
-        frame.setNano(nano);
-
-        QTickT* tick = (QTickT*)((char*)buffer + BASIC_FRAME_HEADER_LENGTH);
+        Frame frame = feeder_writer_->locateFrame();
+        QTickT* tick = (QTickT*)(frame.getData());
         tick->receive_time = getNanoTime();
         tick->timestamp = timestamp;
         tick->pre_close = ctp_price(p->PreClosePrice);
         tick->upper_limit = ctp_price(p->UpperLimitPrice);
         tick->lower_limit = ctp_price(p->LowerLimitPrice);
-        while (true) {
-            if (p->BidVolume1 > 0) {
-                tick->bp[0] = ctp_price(p->BidPrice1);
-                tick->bv[0] = p->BidVolume1;
-            } else {
-                break;
-            }
+
+        if (p->BidVolume1 > 0) {
+            tick->bp[0] = ctp_price(p->BidPrice1);
+            tick->bv[0] = p->BidVolume1;
             if (p->BidVolume2 > 0) {
                 tick->bp[1] = ctp_price(p->BidPrice2);
                 tick->bv[1] = p->BidVolume2;
-            } else {
-                break;
+                if (p->BidVolume3 > 0) {
+                    tick->bp[2] = ctp_price(p->BidPrice3);
+                    tick->bv[2] = p->BidVolume3;
+                    if (p->BidVolume4 > 0) {
+                        tick->bp[3] = ctp_price(p->BidPrice4);
+                        tick->bv[3] = p->BidVolume4;
+                        if (p->BidVolume5 > 0) {
+                            tick->bp[4] = ctp_price(p->BidPrice5);
+                            tick->bv[4] = p->BidVolume5;
+                        }
+                    }
+                }
             }
-            if (p->BidVolume3 > 0) {
-                tick->bp[2] = ctp_price(p->BidPrice3);
-                tick->bv[2] = p->BidVolume3;
-            } else {
-                break;
-            }
-            if (p->BidVolume4 > 0) {
-                tick->bp[3] = ctp_price(p->BidPrice4);
-                tick->bv[3] = p->BidVolume4;
-            } else {
-                break;
-            }
-            if (p->BidVolume5 > 0) {
-                tick->bp[4] = ctp_price(p->BidPrice5);
-                tick->bv[4] = p->BidVolume5;
-            } else {
-                break;
-            }
-            break;
         }
-        while (true) {
-            if (p->AskVolume1 > 0) {
-                tick->ap[0] = ctp_price(p->AskPrice1);
-                tick->av[0] = p->AskVolume1;
-            } else {
-                break;
-            }
+
+        if (p->AskVolume1 > 0) {
+            tick->ap[0] = ctp_price(p->AskPrice1);
+            tick->av[0] = p->AskVolume1;
             if (p->AskVolume2 > 0) {
                 tick->ap[1] = (ctp_price(p->AskPrice2));
                 tick->av[1] = (p->AskVolume2);
-            } else {
-                break;
+                if (p->AskVolume3 > 0) {
+                    tick->ap[2] = ctp_price(p->AskPrice3);
+                    tick->av[2] = p->AskVolume3;
+                    if (p->AskVolume4 > 0) {
+                        tick->ap[3] = ctp_price(p->AskPrice4);
+                        tick->av[3] = p->AskVolume4;
+                        if (p->AskVolume5 > 0) {
+                            tick->ap[4] = ctp_price(p->AskPrice5);
+                            tick->av[4] = p->AskVolume5;
+                        }
+                    }
+                }
             }
-            if (p->AskVolume3 > 0) {
-                tick->ap[2] = ctp_price(p->AskPrice3);
-                tick->av[2] = p->AskVolume3;
-            } else {
-                break;
-            }
-            if (p->AskVolume4 > 0) {
-                tick->ap[3] = ctp_price(p->AskPrice4);
-                tick->av[3] = p->AskVolume4;
-            } else {
-                break;
-            }
-            if (p->AskVolume5 > 0) {
-                tick->ap[4] = ctp_price(p->AskPrice5);
-                tick->av[4] = p->AskVolume5;
-            } else {
-                break;
-            }
-            break;
         }
 
         int64_t sum_volume = p->Volume;

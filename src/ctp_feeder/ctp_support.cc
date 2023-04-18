@@ -19,12 +19,8 @@ namespace co {
         return str;
     }
 
-    int64_t ctp_market2std(TThostFtdcExchangeIDType v) {
-        /////////////////////////////////////////////////////////////////////////
-        ///TFtdcExchangeIDType��һ����������������
-        /////////////////////////////////////////////////////////////////////////
-        //typedef char TThostFtdcExchangeIDType[9];
-        int64_t std_market = 0;
+    int8_t ctp_market2std(TThostFtdcExchangeIDType v) {
+        int8_t std_market = 0;
         string s = "." + string(v);
         if (s == co::kSuffixCFFEX) {
             std_market = co::kMarketCFFEX;
@@ -37,13 +33,12 @@ namespace co {
         } else if (s == co::kSuffixINE) {
             std_market = co::kMarketINE;
         } else {
-			__error << "unknown ctp_market: " << v;
-            xthrow() << "unknown ctp_market: " << v;
+            // __error << "unknown ctp_market: " << v;
         }
         return std_market;
     }
 
-    string market_suffix(int64_t market) {
+    string market_suffix(int8_t market) {
         string suffix = "";
         switch (market) {
             case co::kMarketCFFEX:

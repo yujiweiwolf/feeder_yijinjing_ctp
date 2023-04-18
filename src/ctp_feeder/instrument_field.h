@@ -11,13 +11,10 @@ namespace co {
         void AddInstrument(CThostFtdcInstrumentField *p) {
             all_instrument_.push_back(*p);
         };
-
         std::vector<CThostFtdcInstrumentField>& GetInstrument() {
             return all_instrument_;
         }
-
     private:
         std::vector<CThostFtdcInstrumentField> all_instrument_;
     };
 }
-
